@@ -19,7 +19,6 @@ from __future__ import absolute_import, division, print_function
 
 import argparse
 import logging
-import os
 import random
 
 import numpy as np
@@ -27,9 +26,6 @@ import pandas as pd
 import torch
 from pytorch_pretrained_bert.modeling import BertForPreTraining
 from pytorch_pretrained_bert.tokenization import BertTokenizer
-import sys
-import gc
-from progressbar import ProgressBar
 from joblib import dump, load
 import os
 import re
@@ -173,7 +169,7 @@ def main():
                         default=None,
                         type=str,
                         required=True,
-                        help="The input data dir. Should contain the .tsv files (or other data files) for the task.")
+                        help="The input data dir. Should contain the .csv files (or other data files) for the task.")
     parser.add_argument("--bert_model", default=None, type=str, required=True,
                         help="Bert pre-trained model selected in the list: bert-base-uncased, "
                              "bert-large-uncased, bert-base-cased, bert-large-cased, bert-base-multilingual-uncased, "
@@ -199,7 +195,7 @@ def main():
                         default=128,
                         type=int,
                         help="The maximum total input sequence length after WordPiece tokenization. \n"
-                             "Sequences longer than this will be truncated, and sequences shorter \n"
+                             "Sequences longer than this will be split into two, then combined by averaging \n"
                              "than this will be padded.")
     parser.add_argument("--do_lower_case",
                         action='store_true',
@@ -214,7 +210,7 @@ def main():
     parser.add_argument('--fp16',
                         action='store_true',
                         help="Whether to use 16-bit float precision instead of 32-bit")
-    parser.add_argument('--untuned',
+    parser.add_argument('--tuned',
                         action='store_true',
                         help="Whether to use fine-tuned BERT on finance articles")
     args = parser.parse_args()
@@ -231,7 +227,7 @@ def main():
     tokenizer = BertTokenizer.from_pretrained(args.bert_model, do_lower_case=args.do_lower_case)
 
     model = BertForPreTraining.from_pretrained(args.bert_model)
-    if not args.untuned:
+    if args.tuned:
         model.load_state_dict(torch.load(args.model_file))
         print('Loaded model')
 

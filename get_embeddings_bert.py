@@ -75,7 +75,16 @@ class SamplesProcessor():
         return self._create_examples(data_dir, 'train')
 
     def _create_examples(self, data_dir, set_type):
-        """Creates examples for the training and dev sets."""
+        """
+            Creates examples for the training and dev sets.
+            Input
+            data_dir(str)            : directory to read the csv
+            set_type(str)            : 'train'/'test' (Doesnt actually do anything; artifact from modified code)
+            Output
+            rooted(numpy array)      : array of mean of embeddings in document
+            Example
+            power1 = power_mean(article, 1)
+        """
         examples = []
         df = pd.read_csv(data_dir)
         for i, line in df.iterrows():
@@ -87,8 +96,17 @@ class SamplesProcessor():
 
 
 def convert_examples_to_features(examples, max_seq_length, tokenizer):
-    """Loads a data file into a list of `InputBatch`s."""
-
+    """
+        Loads a data file into a list of `InputBatch`s
+        Input
+        examples(obj)                  : list of InputExample classes
+        max_seq_length(int)            : maximum sequence length of tokens fed into BERT
+        tokenizer                      : chosen tokenizer object
+        Output
+        features(list)                 : list of InputFeatures class objects
+        Example
+        eval_features = convert_examples_to_features(eval_examples, 256, tokenizer)
+    """
     features = []
     for (ex_index, example) in enumerate(examples):
         input_ids_list = []
@@ -162,6 +180,9 @@ def convert_examples_to_features(examples, max_seq_length, tokenizer):
 
 
 def main():
+    """
+        main function that saves embeddings of each article with their id as individual joblib pickle files
+    """
     parser = argparse.ArgumentParser()
 
     ## Required parameters
